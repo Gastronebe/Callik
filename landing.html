@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callík – Pomodoro pro operátory</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+        <!-- Fonty: Quicksand (nadpisy) a Poppins (text) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Specifické úpravy pro Landing Page */
+        body {
+            background-color: var(--color-bg);
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGACE -->
+    <nav class="main-navbar">
+        <div class="header-content">
+          <div class="nav-brand">
+            <div class="brand-row" style="align-items: center; gap: 12px;">
+                <img src="assets/callik-logo.png" alt="Callík Logo" style="height: 50px; width: auto;">
+                <span class="brand-slogan">POMODORO PRO OPERÁTORY</span>
+            </div>
+        </div>
+        
+            <div class="nav-menu">
+                <a href="#" onclick="scrollToAuth()" class="nav-item" style="color: var(--color-primary); background: rgba(255,255,255,0.1);">Přihlásit se</a>
+            </div>
+        </div>
+    </nav>
+
+        <!-- HERO SECTION -->
+        <header class="hero">
+          <div class="hero-container">
+              
+              <!-- LEVÁ STRANA: OBRÁZEK (Andílek/Čertík) -->
+              <div class="hero-image-wrapper">
+                  <img src="assets/callik-devil-angel.png" alt="Callík Maskot" class="hero-image">
+              </div>
+  
+              <!-- PRAVÁ STRANA: TEXT -->
+              <div class="hero-text">
+                  <h1>Zvyšte svůj výkon i výdělek</h1>
+                  <p>Profesionální nástroj pro operátory, kteří chtějí víc než jen volat. Sledujte své KPI, optimalizujte pauzy a vydělávejte efektivněji s <strong>Callíkem!</strong></p>
+                  
+                  <button onclick="scrollToAuth()" class="btn-cta">
+                      Začít zdarma <span style="font-size: 1.2em;">→</span>
+                  </button>
+              </div>
+  
+          </div>
+      </header>
+  
+    <!-- FEATURES SECTION (BENTO GRID) -->
+    <section id="features" class="features-new">
+      <div class="features-header">
+          <p>Vytvořeno operátorem pro operátory.</p>
+      </div>
+
+      <div class="bento-grid">
+          
+          <!-- Karta 1 -->
+          <div class="bento-card">
+              <!-- Zde vložte svůj obrázek -->
+              <img src="assets/mascot-1.png" alt="Mascot Timer" class="card-mascot">
+              <h3>Plánování na minutu</h3>
+              <p>Mějte dokonalý přehled o blocích práce a pauzách. Systém vás upozorní, kdy je čas se vrátit na linku.</p>
+          </div>
+
+          <!-- Karta 2 -->
+          <div class="bento-card">
+              <img src="assets/mascot-2.png" alt="Mascot KPI" class="card-mascot">
+              <h3>KPI v reálném čase</h3>
+              <p>Už žádné čekání na reporty. Sledujte počet hovorů, uzavřené obchody a aktuální výši provize okamžitě.</p>
+          </div>
+
+          <!-- Karta 3 -->
+          <div class="bento-card">
+              <img src="assets/mascot-3.png" alt="Mascot Stats" class="card-mascot">
+              <h3>Motivační statistiky</h3>
+              <p>Porovnávejte své výsledky v čase. Grafy a hodinové metriky vám ukáží, kdy máte největší "drive".</p>
+          </div>
+
+          <!-- Karta 4 (Dole vlevo) -->
+          <div class="bento-card">
+              <img src="assets/mascot-4.png" alt="Mascot Privacy" class="card-mascot">
+              <h3>Soukromí a anonymita</h3>
+              <p>Data jsou bezpečně uložena. V žebříčcích vystupujete pod anonymní přezdívkou.</p>
+          </div>
+
+          <!-- Social Proof Sekce (Dole vpravo - zabírá 2 sloupce) -->
+          <div class="social-proof-area">
+              <h3 class="social-proof-title">S Callíkem pracuje 20+ operátorů</h3>
+              
+              <!-- Shluk avatarů -->
+            
+               <div class="avatars-cluster" id="avatar-container">
+             <!-- Obrázky se načtou náhodně přes JavaScript -->
+              </div>
+
+
+              <button onclick="scrollToAuth()" class="btn-social-cta">
+                  Začít zdarma
+              </button>
+          </div>
+
+      </div>
+  </section>
+
+        <!-- AUTH SECTION -->
+        <section id="auth-section" class="auth-section-gradient">
+        
+          <!-- PŘIHLAŠOVACÍ / REGISTRAČNÍ KONTEJNER -->
+          <div id="auth-container" class="auth-container active">
+              
+              <!-- Nová tlačítka s mezerou -->
+              <div class="auth-tabs-wrapper">
+                  <button onclick="switchTab('register')" id="tab-register" class="auth-tab active-tab">
+                      Registrace
+                  </button>
+                  <button onclick="switchTab('login')" id="tab-login" class="auth-tab">
+                      Přihlášení
+                  </button>
+              </div>
+  
+              <!-- Formulář REGISTRACE -->
+              <form id="register-form">
+                  <h3 style="margin-bottom: 24px; color: var(--color-dark); font-size: 1.5rem;">Vytvořit nový účet</h3>
+                  <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="email" id="reg-email" class="form-input" placeholder="vas@email.cz" required>
+                  </div>
+                  <div class="form-group">
+                      <label class="form-label">Heslo</label>
+                      <input type="password" id="reg-password" class="form-input" placeholder="Minimálně 8 znaků" required minlength="8">
+                  </div>
+                  
+                  <button type="submit" id="reg-btn" class="btn-cta" style="width: 100%; justify-content: center; margin-top: 10px;">
+                      Registrovat se
+                  </button>
+              </form>
+  
+              <!-- Formulář PŘIHLÁŠENÍ -->
+              <form id="login-form" style="display: none;">
+                  <h3 style="margin-bottom: 24px; color: var(--color-dark); font-size: 1.5rem;">Vítejte zpět</h3>
+                  <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="email" id="login-email" class="form-input" placeholder="vas@email.cz" required>
+                  </div>
+                  <div class="form-group">
+                      <label class="form-label">Heslo</label>
+                      <input type="password" id="login-password" class="form-input" placeholder="Vaše heslo" required>
+                  </div>
+                  
+                  <button type="submit" id="login-btn" class="btn-cta" style="width: 100%; justify-content: center; margin-top: 10px;">
+                      Přihlásit se
+                  </button>
+              </form>
+          </div>
+  
+          <!-- KROK 2: OVĚŘENÍ EMAILU (Mezikrok) -->
+          <div id="verify-step" class="auth-container">
+              <div class="verification-icon">✉️</div>
+              <h2 style="margin-bottom: 16px; color: var(--color-dark);">Ověřte svůj email</h2>
+              <p style="color: var(--color-text-light); margin-bottom: 30px;">
+                  Odeslali jsme potvrzovací odkaz na <strong id="verify-email-display">váš email</strong>. 
+                  Pro aktivaci účtu prosím klikněte na odkaz v emailu.
+              </p>
+              
+              <div style="background: var(--warning-light); color: #b45309; padding: 16px; border-radius: var(--radius-md); font-size: 0.9rem; margin-bottom: 24px; text-align: left; line-height: 1.5;">
+                  <strong>⚠️ Důležité:</strong> Pokud email nevidíte, zkontrolujte složku <em>Spam</em> nebo <em>Hromadné</em>.
+              </div>
+  
+              <p style="margin-top: 24px;">
+                  <a href="#" onclick="location.reload()" style="color: var(--color-primary); font-weight: 600;">Zpět na přihlášení</a>
+              </p>
+          </div>
+  
+      </section>
+  
+
+    <footer>
+        <p>© 2026 Callík App. Všechna práva vyhrazena.</p>
+    </footer>
+
+    <!-- LOGIKA APLIKACE -->
+    <script type="module">
+        // Importujeme Supabase přímo, abychom měli kontrolu nad flow
+        import { supabase } from './js/supabaseClient.js';
+
+        // Globální funkce pro scrollování
+        window.scrollToAuth = function() {
+            document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+               // Přepínání tabů (Upraveno pro nové třídy)
+               window.switchTab = function(tab) {
+            const regForm = document.getElementById('register-form');
+            const loginForm = document.getElementById('login-form');
+            const tabReg = document.getElementById('tab-register');
+            const tabLogin = document.getElementById('tab-login');
+
+            if (tab === 'register') {
+                regForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                
+                // Přepnutí tříd
+                tabReg.classList.add('active-tab');
+                tabLogin.classList.remove('active-tab');
+            } else {
+                regForm.style.display = 'none';
+                loginForm.style.display = 'block';
+
+                // Přepnutí tříd
+                tabLogin.classList.add('active-tab');
+                tabReg.classList.remove('active-tab');
+            }
+        }
+
+
+        // --- REGISTRACE ---
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('reg-btn');
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            btn.textContent = 'Registruji...';
+            btn.disabled = true;
+
+            try {
+                // Voláme přímo Supabase signUp
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Úspěch -> Zobrazit mezikrok (Ověření emailu)
+                document.getElementById('auth-container').classList.remove('active');
+                document.getElementById('verify-step').classList.add('active');
+                document.getElementById('verify-email-display').textContent = email;
+                
+                // Jemný scroll nahoru, aby bylo okno vidět celé
+                document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                alert('Chyba při registraci: ' + err.message);
+                btn.textContent = 'Registrovat se';
+                btn.disabled = false;
+            }
+        });
+
+        // --- PŘIHLÁŠENÍ ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            btn.textContent = 'Přihlašuji...';
+            btn.disabled = true;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Úspěch -> Přesměrovat do aplikace
+                // Předpokládám, že hlavní aplikace je 'app.html' podle auth.js
+                window.location.href = 'app.html';
+
+            } catch (err) {
+                alert('Chyba při přihlášení: ' + err.message);
+                btn.textContent = 'Přihlásit se';
+                btn.disabled = false;
+            }
+        });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+          const container = document.getElementById('avatar-container');
+          if (!container) return;
+  
+          const totalAvatarsAvailable = 30; // Máte 01.png až 30.png
+          const avatarsToShow = 5;          // Kolik jich chceme zobrazit
+          const selectedNumbers = new Set(); // Set zaručí unikátnost (žádné duplicity)
+  
+          // 1. Vygeneruj unikátní náhodná čísla
+          while (selectedNumbers.size < avatarsToShow) {
+              const randomNum = Math.floor(Math.random() * totalAvatarsAvailable) + 1;
+              selectedNumbers.add(randomNum);
+          }
+  
+          // 2. Vytvoř obrázky a vlož je do stránky
+          selectedNumbers.forEach(num => {
+              // Převede číslo na string s nulou na začátku (např. 5 -> "05")
+              const fileName = num.toString().padStart(2, '0') + '.png';
+              
+              const img = document.createElement('img');
+              img.src = `assets/avatars/${fileName}`;
+              img.alt = `Uživatel ${num}`;
+              img.className = 'avatar-circle';
+              
+              // Volitelné: Přidat náhodné pozadí, kdyby byl obrázek průhledný
+              // const colors = ['#fbbf24', '#a3e635', '#e879f9', '#38bdf8', '#f472b6'];
+              // img.style.background = colors[Math.floor(Math.random() * colors.length)];
+  
+              container.appendChild(img);
+          });
+      });
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Statistiky - Callik</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-header-left">
+            <img src="/assets/callik-logo.png" alt="Callik logo" class="app-logo" />
+            <div class="app-header-title">
+                <h1>Callik</h1>
+                <span class="app-header-subtitle">Statistiky</span>
+            </div>
+        </div>
+
+        <div class="app-header-center">
+            <label class="date-picker-label">
+                Datum
+                <input type="date" id="dayDate" />
+            </label>
+            <button id="todayBtn" class="btn-today">Dnes</button>
+        </div>
+
+        <div class="app-header-right" id="profileMenu">
+            <div class="profile-info">
+                <img src="/assets/avatars/01.png" alt="Avatar" class="profile-avatar" id="profileAvatar" />
+                <div class="profile-text">
+                    <span id="profileName" class="profile-name">Načítám…</span>
+                    <button id="logoutBtn" class="profile-logout">Odhlásit se</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Navigace zpět -->
+        <section class="card" style="margin-bottom: 20px;">
+            <a href="app.html" class="btn-back" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--primary-color);">
+                <span>←</span> Zpět na hlavní stránku
+            </a>
+        </section>
+
+        <!-- Statistiky -->
+        <section class="card">
+            <h2>Statistiky</h2>
+
+            <div class="stats-controls">
+                <button data-range="day" class="rangeBtn rangeBtn-active">Den</button>
+                <button data-range="week" class="rangeBtn">Týden</button>
+                <button data-range="month" class="rangeBtn">Měsíc</button>
+            </div>
+
+            <div id="statsContent" class="stats-content"></div>
+        </section>
+    </main>
+
+    <footer>
+        <small>Data se ukládají lokálně v prohlížeči.</small>
+    </footer>
+
+    <script type="module" src="/js/config.js"></script>
+    <script type="module" src="/js/supabaseClient.js"></script>
+    <script type="module" src="/js/auth.js"></script>
+
+    <script type="module">
+        import { supabase } from '/js/supabaseClient.js';
+        import { loadCurrentProfile, initProfileHeader } from '/js/profiles.js';
+        import * as db from '/js/db.js';
+
+        async function checkAuthGuard() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function initStatsPage() {
+            if (!await checkAuthGuard()) return;
+
+            // Načtení profilu uživatele
+            await loadCurrentProfile();
+            initProfileHeader();
+
+            // Inicializace statistik
+            await loadStats('day');
+
+            // Event listenery pro range buttony
+            document.querySelectorAll('.rangeBtn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    document.querySelectorAll('.rangeBtn').forEach(b => b.classList.remove('rangeBtn-active'));
+                    e.target.classList.add('rangeBtn-active');
+                    const range = e.target.getAttribute('data-range');
+                    await loadStats(range);
+                });
+            });
+        }
+
+        async function loadStats(range) {
+            const statsContent = document.getElementById('statsContent');
+            statsContent.innerHTML = '<p>Načítání statistik...</p>';
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                // Získání dat z databáze podle rozsahu
+                let blocks = [];
+                const now = new Date();
+                let startDate;
+
+                if (range === 'day') {
+                    startDate = new Date(now.setHours(0, 0, 0, 0));
+                } else if (range === 'week') {
+                    startDate = new Date(now.setDate(now.getDate() - 7));
+                } else if (range === 'month') {
+                    startDate = new Date(now.setDate(now.getDate() - 30));
+                }
+
+                // Načtení bloků z Supabase
+                const { data, error } = await supabase
+                    .from('blocks')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .gte('created_at', startDate.toISOString())
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Chyba při načítání bloků:', error);
+                    statsContent.innerHTML = '<p>Chyba při načítání dat.</p>';
+                    return;
+                }
+
+                blocks = data || [];
+
+                // Výpočet statistik
+                let totalMinutes = 0;
+                let totalCalls = 0;
+                let totalReward = 0;
+
+                blocks.forEach(block => {
+                    totalMinutes += block.talk_minutes || 0;
+                    totalCalls += block.calls || 0;
+                    totalReward += block.pay || 0;
+                });
+
+                // Zobrazení statistik
+                const rangeText = range === 'day' ? 'dnes' : range === 'week' ? 'za týden' : 'za měsíc';
+                statsContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Celkem hovorů</h3>
+                            <p class="stat-value">${totalCalls}</p>
+                            <small>${rangeText}</small>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Minut hovoru</h3>
+                            <p class="stat-value">${totalMinutes}</p>
+                            <small>${rangeText}</small>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Odměna</h3>
+                            <p class="stat-value">${totalReward} Kč</p>
+                            <small>${rangeText}</small>
+                        </div>
+                `;
+            } catch (err) {
+                console.error('Chyba:', err);
+                statsContent.innerHTML = '<p>Nastala chyba při načítání statistik.</p>';
+            }
+        }
+
+        // Inicializace při načtení stránky
+        initStatsPage();
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Callík</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+      <!-- Fonty: Quicksand (nadpisy) a Poppins (text) -->
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+</head>
+<body>
+  <header class="main-navbar">
+    <div class="header-content">
+      
+      <!-- LEVÁ ČÁST -->
+      <div class="nav-brand">
+        <div class="brand-row">
+          <!-- Logo z vašeho původního souboru -->
+          <img src="/assets/callik-logo.png" alt="Callík logo" class="app-logo">
+        </div>
+        <div class="brand-slogan">Sledujte svůj výkon v reálném čase</div>
+      </div>
+
+      <!-- STŘED: Menu -->
+      <nav class="nav-menu">
+        <a href="#stats" class="nav-item active">
+          <span>📊</span> Statistiky
+        </a>
+        <a href="#" class="nav-item">
+          <span>❓</span> Nápověda
+        </a>
+        <a href="#" class="nav-item">
+          <span>📁</span> Moje projekty
+        </a>
+      </nav>
+
+     <!-- PRAVÁ ČÁST: Uživatel s Dropdownem -->
+<div class="nav-user">
+  <!-- Hlavní kontejner dropdownu -->
+  <div class="profile-dropdown" id="profileDropdown">
+    
+    <!-- Klikatelná oblast (Avatar + Jméno) -->
+    <button class="profile-toggle" id="profileToggle" aria-haspopup="true" aria-expanded="false">
+      <img src="/assets/avatars/01.png" alt="Avatar" class="profile-avatar" id="profileAvatar">
+      <div class="profile-text">
+         <span id="profileName" class="profile-name">Načítám…</span>
+         <span class="profile-role">Uživatel</span> <!-- Volitelné: Role pod jménem -->
+      </div>
+      <!-- Šipka dolů -->
+      <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+
+    <!-- Skryté menu -->
+    <div class="dropdown-menu" id="dropdownMenu">
+      <div class="dropdown-header">
+         <span class="dropdown-user-name" id="dropdownUserName">Načítám...</span>
+         <span class="dropdown-user-role">Přihlášen</span>
+      </div>
+      
+      <div class="dropdown-divider"></div>
+      
+      <button class="dropdown-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <span>Nastavení</span>
+        <span class="badge-mini">Brzy</span>
+      </button>
+
+      <div class="dropdown-divider"></div>
+
+      <button id="logoutBtn" class="dropdown-item text-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Odhlásit se</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+    </div>
+
+    </div>
+  </header>
+
+
+<main>
+ <!-- Cíle dne -->
+<section class="card goals-card">
+  <div class="goals-header">
+    <h2>Dneska zvládnu!</h2>
+    <button id="showGoalsBtn" class="show-goals-btn" style="display: none;">
+      ✏️ Upravit
+    </button>
+  </div>
+
+  <div id="goalsForm">
+    <div class="goals-grid">
+      <label>Minuty hovoru
+        <input type="number" id="goalMinutes" min="0" step="1" oninput="debouncedSaveGoals()" />
+      </label>
+
+      <label>Odměna
+        <input type="number" id="goalPay" min="0" step="1" oninput="debouncedSaveGoals()" />
+      </label>
+
+      <label>Počet hovorů
+        <input type="number" id="goalCalls" min="0" step="1" oninput="debouncedSaveGoals()" />
+      </label>
+    </div>
+
+    <button id="saveGoalsBtn">Uložit cíle</button>
+  </div>
+
+  <div class="progress-wrapper">
+    <div class="progress-item">
+      <span>Minuty hovoru</span>
+      <div class="progress-bar"><div class="progress-inner" id="progressMinutes"></div></div>
+      <span class="progress-text" id="progressMinutesText"></span>
+    </div>
+
+    <div class="progress-item">
+      <span>Odměna</span>
+      <div class="progress-bar"><div class="progress-inner" id="progressPay"></div></div>
+      <span class="progress-text" id="progressPayText"></span>
+    </div>
+
+    <div class="progress-item">
+      <span>Počet hovorů</span>
+      <div class="progress-bar"><div class="progress-inner" id="progressCalls"></div></div>
+      <span class="progress-text" id="progressCallsText"></span>
+    </div>
+  </div>
+</section>
+  <!-- Focus timer -->
+  <section class="focus-timer card">
+    <div class="focus-timer-inner">
+      <div class="ring">
+        <svg class="ring-svg" width="220" height="220" viewBox="0 0 220 220" aria-label="Odpočet aktuálního bloku">
+          <circle class="ring-bg" cx="110" cy="110" r="92"></circle>
+          <circle class="ring-fg" cx="110" cy="110" r="92"></circle>
+        </svg>
+
+        <div class="ring-center">
+          <div id="focusTime" class="ring-time">--:--</div>
+          <div id="focusLabel" class="ring-label">---</div>
+        </div>
+      </div>
+
+      <div class="focus-meta">
+        <div class="focus-title">Aktuální blok</div>
+        <div id="focusRange" class="focus-range">--:-- – --:--</div>
+        <div id="focusProject" class="focus-project"></div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- Plán bloků -->
+  <section class="card">
+    <h2 style="margin-bottom: 15px; font-size: 1.25rem; color: #1e293b;">Plán bloků</h2>
+      
+    <!-- Ovládací panel (Tlačítka + Datum) -->
+    <div class="controls-bar">
+       <div class="buttons-group">
+          <button id="addWorkBlockBtn" class="btn-action btn-work">Přidat pracovní blok</button>
+          <button id="addBreakBlockBtn" class="btn-action btn-break">Přidat pauzu</button>
+          <button id="clearBlocksBtn" class="btn-action btn-clear">Vymazat bloky dne</button>
+       </div>
+
+       <!-- Datum přesunuto SEM -->
+       <div class="date-controls">
+          <input type="date" id="dayDate" class="date-input">
+          <button id="todayBtn" class="today-btn">Dnes</button>
+       </div>
+    </div>
+
+    <p class="hint">
+      Bloky se skládají od 8:00 za sebou. Začátek a konec můžeš kdykoliv upravit ručně.
+      U pauzy zadej důvod, u pracovního bloku vyber projekt.
+    </p>
+
+    <table class="blocks-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Projekt</th>
+        <th>Start</th>
+        <th>Konec</th>
+        <th>Délka</th>
+        <th>Minuty</th>
+        <th>Cash</th>
+        <th>Hovory</th>
+        <th>Leady</th>
+        <th>KPI</th>
+        <th>Utilizace</th>
+        <th>Akce</th>
+      </tr>
+      </thead>
+
+      <tbody id="blocksTbody"></tbody>
+    </table>
+  </section>
+
+  <!-- Statistiky -->
+  <section class="card">
+    <h2>Statistiky</h2>
+
+    <div class="stats-controls">
+      <button data-range="day" class="rangeBtn rangeBtn-active">Den</button>
+      <button data-range="week" class="rangeBtn">Týden</button>
+      <button data-range="month" class="rangeBtn">Měsíc</button>
+    </div>
+
+    <div id="statsContent" class="stats-content"></div>
+  </section>
+
+  <!-- Dialog: přidat projekt -->
+  <dialog id="projectDialog" class="dialog">
+    <form method="dialog" id="projectDialogForm" class="dialog-form">
+      <h3>Přidat projekt</h3>
+
+      <label>
+        Název projektu:
+        <input type="text" id="dlgProjectName" required />
+      </label>
+
+      <label>
+        Cílové KPI (%):
+        <input type="text" id="dlgProjectTargetKpi" placeholder="např. 12,5" required />
+      </label>
+
+      <div class="dialog-actions">
+        <button value="cancel">Zrušit</button>
+        <button id="dlgSaveProjectBtn" value="save">Uložit</button>
+      </div>
+    </form>
+  </dialog>
+<!-- Dialog: Editace bloku -->
+<dialog id="blockEditDialog" class="dialog">
+  <form id="blockEditForm" class="dialog-form"> <!-- ZDE SMAZAT method="dialog" -->
+    <h3>Výsledky bloku</h3>
+    <input type="hidden" id="editBlockId">
+    
+    <div style="background: #f0f9ff; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #bae6fd;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #0369a1; font-weight: 500;">
+          <input type="checkbox" id="editCumulativeMode">
+          Zadávám celkové stavy projektu (od rána)
+      </label>
+      <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; margin-left: 24px;">
+          Když zaškrtnete, Callík sám vypočítá rozdíl oproti předchozím blokům.
+      </div>
+  </div>
+
+  <input type="hidden" id="editBlockId">
+    <!-- ZDE BYLY SEKCE PRO PROJEKT A DŮVOD - SMAZÁNO -->
+
+    <div class="form-row">
+      <label>Minuty hovoru: <input type="number" id="editTalkMinutes" min="0"></label>
+      <label>Odměna (Kč): <input type="number" id="editPay" min="0"></label>
+    </div>
+
+    <div class="form-row">
+      <label>Počet hovorů: <input type="number" id="editCalls" min="0"></label>
+      <label>Leady: <input type="number" id="editLeads" min="0"></label>
+    </div>
+
+    <label>Aktuální KPI (%): <input type="text" id="editCurrentKpi"></label>
+
+    <div class="dialog-actions">
+      <!-- Tlačítkům změníme typ, aby se formulář nechoval divně -->
+      <button type="button" id="blockEditCancelBtn">Zrušit</button>
+      <button type="submit">Uložit</button>
+    </div>
+  </form>
+</dialog>
+
+
+
+</main>
+
+<footer>
+  <small>Data se ukládají lokálně v prohlížeči.</small>
+</footer>
+
+ <!-- JavaScript moduly -->
+ <script type="module">
+  // Změna: přidáno "/js/" před názvy souborů
+  import { init } from './js/app.js';
+  import { checkAuth } from './js/auth.js';
+  import { loadCurrentProfile, initProfileHeader } from './js/profiles.js';
+
+  // Kontrola přihlášení
+  await checkAuth();
+
+  // Načtení profilu
+  await loadCurrentProfile();
+  initProfileHeader();
+
+  // Inicializace aplikace
+  await init();
+</script>
+
+
+</body>
+</html>
