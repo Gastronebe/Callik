@@ -2,9 +2,11 @@
 import { ModuleLoader } from './core/moduleLoader.js';
 import { eventBus } from './core/eventBus.js';
 import { QuotesModule } from './modules/quotes/quotes.module.js';
+import { FocusModule } from './modules/focus/focus.module.js';
 
 const moduleLoader = new ModuleLoader();
 moduleLoader.register('quotes', new QuotesModule());
+moduleLoader.register('focus', new FocusModule());
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Startuji aplikaci Callik...');
