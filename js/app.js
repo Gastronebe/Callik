@@ -1,10 +1,31 @@
+// === import modulů ===
+import { ModuleLoader } from './core/moduleLoader.js';
+import { eventBus } from './core/eventBus.js';
+import { QuotesModule } from './modules/quotes/quotes.module.js';
+
+const moduleLoader = new ModuleLoader();
+moduleLoader.register('quotes', new QuotesModule());
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 Startuji aplikaci Callik...');
+  await moduleLoader.init();
+});
+
 // app.js - Hlavní logika aplikace (Refaktorováno - bez inline stylů)
-import { 
-  dbGetProjects, dbAddProject, dbUpsertDay, dbGetAllDays, 
-  dbInsertBlock, dbLoadBlocksForDay, dbDeleteBlock, dbUpdateBlock, 
-  dbUpdateBlockProject, dbGetDay 
+import {
+  dbGetProjects,
+  dbAddProject,
+  dbUpsertDay,
+  dbGetAllDays,
+  dbInsertBlock,
+  dbLoadBlocksForDay,
+  dbDeleteBlock,
+  dbUpdateBlock,
+  dbUpdateBlockProject,
+  dbGetDay
 } from './db.js';
 import { quotes } from './quotes.js';
+
 
 // Pomocná funkce pro získání citátu z importovaného pole
 function getQuoteForBlock(blockId) {
