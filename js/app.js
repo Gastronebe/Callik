@@ -6,7 +6,8 @@ import { FocusModule } from './modules/focus/focus.module.js';
 
 const moduleLoader = new ModuleLoader();
 moduleLoader.register('quotes', new QuotesModule());
-moduleLoader.register('focus', new FocusModule());
+const focusModule = new FocusModule();
+moduleLoader.register('focus', focusModule);
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Startuji aplikaci Callik...');
@@ -130,11 +131,7 @@ function sortBlocksByStart(blocks) {
 }
 
 // --- Focus ring helpers ---
-function formatMMSS(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${pad2(m)}:${pad2(s)}`;
-}
+
 function getCurrentWorkBlock(blocks, nowMs) {
   const workBlocks = blocks.filter(b => b.type === "work");
   workBlocks.sort((a, b) => timeStringToMinutes(a.start) - timeStringToMinutes(b.start));
@@ -934,7 +931,7 @@ function startCountdownLoop() {
         const elapsedSecs = (nowMins - startMins) * 60 + nowSecs;
         const remainingSecs = totalSecs - elapsedSecs;
 
-        focusTimeEl.textContent = formatMMSS(remainingSecs);
+        focusTimeEl.textContent = focusModule.formatMMSS(remainingSecs);
         focusLabelEl.textContent = "Zbývá";
         focusRangeEl.textContent = `${currentBlock.start} — ${currentBlock.end}`;
         
