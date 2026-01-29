@@ -137,13 +137,6 @@ async function saveGoalsFromUI() {
   }
 }
 
-let goalsDebounceTimer = null;
-function debouncedSaveGoals() {
-  if (goalsDebounceTimer) clearTimeout(goalsDebounceTimer);
-  goalsDebounceTimer = setTimeout(() => { saveGoalsFromUI(); }, 1000);
-}
-window.debouncedSaveGoals = debouncedSaveGoals;
-
 async function updateStatsAndProgress() {
   const day = await getOrCreateCurrentDay();
   const blocks = await loadBlocksForCurrentDay();
