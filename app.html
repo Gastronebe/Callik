@@ -152,6 +152,31 @@
         <div class="focus-title">Aktuální blok</div>
         <div id="focusRange" class="focus-range">--:-- – --:--</div>
         <div id="focusProject" class="focus-project"></div>
+
+        <!-- Čistý čas a pauza -->
+        <div class="focus-stats">
+          <div id="focusCleanTime" class="focus-clean-time"></div>
+          <div id="focusPausedTime" class="focus-paused-time"></div>
+        </div>
+
+        <!-- Ovládací tlačítka -->
+        <div class="timer-controls">
+          <button id="timerPlayBtn" class="timer-btn timer-btn-play" title="Spustit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+          <button id="timerPauseBtn" class="timer-btn timer-btn-pause" title="Pozastavit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          </button>
+          <button id="timerStopBtn" class="timer-btn timer-btn-stop" title="Zastavit a uložit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 6h12v12H6z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </section>

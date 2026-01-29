@@ -67,8 +67,12 @@ CREATE TABLE public.blocks (
   current_kpi text,
   reason text,
   project_id text,
+  paused_seconds int DEFAULT 0,  -- Celkový čas pauzy v sekundách
   created_at timestamptz DEFAULT now()
 );
+
+-- Migrace pro existující databáze:
+-- ALTER TABLE public.blocks ADD COLUMN IF NOT EXISTS paused_seconds int DEFAULT 0;
 
 ALTER TABLE public.blocks ENABLE ROW LEVEL SECURITY;
 

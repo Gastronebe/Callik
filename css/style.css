@@ -739,6 +739,116 @@ button:disabled {
   border-radius: var(--radius-md);
   display: inline-block;
 }
+
+/* Focus stats - čistý čas a pauza */
+.focus-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+
+.focus-clean-time {
+  color: var(--color-success, #22c55e);
+  font-weight: 600;
+}
+
+.focus-paused-time {
+  color: var(--color-warning, #f59e0b);
+  font-weight: 600;
+  display: none;
+}
+
+/* Timer control buttons */
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.timer-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.timer-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.timer-btn:active {
+  transform: scale(0.95);
+}
+
+.timer-btn-play {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+}
+
+.timer-btn-play:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.timer-btn-pause {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.timer-btn-pause:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.timer-btn-stop {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.timer-btn-stop:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.timer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Paused states */
+.ring-time.paused {
+  animation: pulse-paused 1.5s ease-in-out infinite;
+  color: var(--color-warning, #f59e0b);
+}
+
+.ring-fg.paused {
+  stroke: var(--color-warning, #f59e0b) !important;
+}
+
+@keyframes pulse-paused {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Čistý čas v tabulce */
+.clean-time {
+  font-weight: 600;
+  color: var(--color-success, #22c55e);
+}
+
+.paused-indicator {
+  font-size: 0.75rem;
+  color: var(--color-warning, #f59e0b);
+  font-weight: 500;
+}
+
 /* ==========================================
    === 10. TABULKA BLOKŮ - OPRAVENÁ VERZE ===
    ========================================== */
