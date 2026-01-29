@@ -1,6 +1,7 @@
 // services/stats.js - Výpočty statistik
 
 import { getDurationMinutes } from '../utils/formatters.js';
+import { getCleanDurationMinutes } from '../utils/timer.js';
 import { dbGetAllDays, dbLoadBlocksForDay } from '../db.js';
 import { getOrCreateCurrentDay, getCurrentDate } from './days.js';
 
@@ -8,11 +9,23 @@ import { getOrCreateCurrentDay, getCurrentDate } from './days.js';
  * Spočítá denní součty z bloků
  */
 export function computeDaySums(blocks) {
-  let minutes = 0, pay = 0, calls = 0, leads = 0, cleanWorkMinutes = 0;
+  let minutes = 0, pay = 0, calls = 0, leads = 0;
+  let totalWorkMinutes = 0;   // Celková délka pracovních bloků
+  let cleanWorkMinutes = 0;   // Čistý pracovní čas (bez pauz)
+  let totalPausedMinutes = 0; // Celkový čas pauz v blocích
 
   blocks.forEach(b => {
     if (b.type !== "work") return;
-    cleanWorkMinutes += getDurationMinutes(b);
+
+    const blockDuration = getDurationMinutes(b);
+    const blockCleanDuration = getCleanDurationMinutes(b);
+    const pausedSeconds = b.paused_seconds || 0;
+    const pausedMinutes = Math.floor(pausedSeconds / 60);
+
+    totalWorkMinutes += blockDuration;
+    cleanWorkMinutes += blockCleanDuration;
+    totalPausedMinutes += pausedMinutes;
+
     minutes += (b.talk_minutes || 0);
     pay += (b.pay || 0);
     calls += (b.calls || 0);
@@ -25,7 +38,17 @@ export function computeDaySums(blocks) {
   let talkVsWorkPercent = null;
   if (cleanWorkMinutes > 0) talkVsWorkPercent = Math.round((minutes / cleanWorkMinutes) * 100);
 
-  return { minutes, pay, calls, leads, kpiPercent, cleanWorkMinutes, talkVsWorkPercent };
+  return {
+    minutes,
+    pay,
+    calls,
+    leads,
+    kpiPercent,
+    totalWorkMinutes,
+    cleanWorkMinutes,
+    totalPausedMinutes,
+    talkVsWorkPercent
+  };
 }
 
 /**
@@ -77,6 +100,10 @@ export async function renderStatsRange(statsContent, currentRange) {
     const currentDateStr = getCurrentDate();
 
     if (statsContent) {
+      const pauseInfo = sums.totalPausedMinutes > 0
+        ? `<p><strong>Pauzy v blocích:</strong> ${sums.totalPausedMinutes} min</p>`
+        : '';
+
       statsContent.innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
           <div>
@@ -86,6 +113,13 @@ export async function renderStatsRange(statsContent, currentRange) {
             <p><strong>Hovory:</strong> ${sums.calls}</p>
             <p><strong>Leady:</strong> ${sums.leads}</p>
             <p><strong>KPI:</strong> ${sums.kpiPercent != null ? sums.kpiPercent + "%" : "-"}</p>
+          </div>
+          <div>
+            <h3>Pracovní čas</h3>
+            <p><strong>Celkem v blocích:</strong> ${sums.totalWorkMinutes} min</p>
+            <p><strong>Čistý pracovní čas:</strong> <span style="color: var(--color-success, #22c55e); font-weight: 600;">${sums.cleanWorkMinutes} min</span></p>
+            ${pauseInfo}
+            <p><strong>Utilizace:</strong> ${sums.talkVsWorkPercent != null ? sums.talkVsWorkPercent + "%" : "-"}</p>
           </div>
         </div>
       `;

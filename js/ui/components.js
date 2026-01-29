@@ -5,6 +5,7 @@ import {
   getDurationMinutes, parseCzNumber
 } from '../utils/formatters.js';
 import { getQuoteForBlock } from '../utils/quotes.js';
+import { getCleanDurationMinutes } from '../utils/timer.js';
 import { buildProjectSelect, getProjectById } from '../services/projects.js';
 import { dbUpdateBlock, dbLoadBlocksForDay } from '../db.js';
 import { getOrCreateCurrentDay } from '../services/days.js';
@@ -115,9 +116,19 @@ export async function renderBlocks(blocks, blocksTbody, callbacks) {
     tdEnd.appendChild(endInput);
     tr.appendChild(tdEnd);
 
-    // 5. Délka
+    // 5. Délka (zobrazuje čistý čas pokud je pauza)
     const tdLen = document.createElement("td");
-    tdLen.textContent = getDurationMinutes(block) + " min";
+    const totalMinutes = getDurationMinutes(block);
+    const pausedSeconds = block.paused_seconds || 0;
+    const pausedMinutes = Math.floor(pausedSeconds / 60);
+
+    if (pausedMinutes > 0) {
+      const cleanMinutes = getCleanDurationMinutes(block);
+      tdLen.innerHTML = `<span class="clean-time">${cleanMinutes} min</span> <span class="paused-indicator">(${pausedMinutes} min pauza)</span>`;
+      tdLen.title = `Celkem: ${totalMinutes} min, Pauza: ${pausedMinutes} min, Čistý čas: ${cleanMinutes} min`;
+    } else {
+      tdLen.textContent = totalMinutes + " min";
+    }
     tr.appendChild(tdLen);
 
     if (block.type === "break") {

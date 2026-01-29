@@ -4,8 +4,14 @@
 import { RING_CIRC } from './core/constants.js';
 
 // Utils
-import { getTodayDateString, timeStringToMinutes, formatMMSS } from './utils/formatters.js';
-import { getCurrentWorkBlock } from './utils/timer.js';
+import { getTodayDateString } from './utils/formatters.js';
+import {
+  getCurrentBlock,
+  getTimerState,
+  setTimerPaused,
+  getTotalPausedSeconds,
+  updateFocusRingWithPause
+} from './utils/timer.js';
 
 // Services
 import { dbLoadBlocksForDay, dbUpdateBlock } from './db.js';
@@ -59,7 +65,14 @@ const focusTimeEl = document.getElementById("focusTime");
 const focusLabelEl = document.getElementById("focusLabel");
 const focusRangeEl = document.getElementById("focusRange");
 const focusProjectEl = document.getElementById("focusProject");
+const focusCleanTimeEl = document.getElementById("focusCleanTime");
+const focusPausedTimeEl = document.getElementById("focusPausedTime");
 const ringFg = document.querySelector(".ring-fg");
+
+// Timer control buttons
+const timerPlayBtn = document.getElementById("timerPlayBtn");
+const timerPauseBtn = document.getElementById("timerPauseBtn");
+const timerStopBtn = document.getElementById("timerStopBtn");
 
 // Inicializace ring
 if (ringFg) {
@@ -70,6 +83,7 @@ if (ringFg) {
 // Stav
 let currentRange = "day";
 let countdownInterval = null;
+let currentActiveBlockId = null;
 
 // --- Pomocné funkce ---
 
@@ -144,6 +158,70 @@ async function updateStatsAndProgress() {
   renderStatsRange(statsContent, currentRange);
 }
 
+// --- Timer control functions ---
+
+function updateTimerButtons(hasActiveBlock, isPaused) {
+  if (!timerPlayBtn || !timerPauseBtn || !timerStopBtn) return;
+
+  if (!hasActiveBlock) {
+    // Žádný aktivní blok - všechna tlačítka disabled
+    timerPlayBtn.disabled = true;
+    timerPauseBtn.disabled = true;
+    timerStopBtn.disabled = true;
+  } else if (isPaused) {
+    // Je pauza - play enabled, pause disabled
+    timerPlayBtn.disabled = false;
+    timerPauseBtn.disabled = true;
+    timerStopBtn.disabled = false;
+  } else {
+    // Běží - pause enabled, play disabled
+    timerPlayBtn.disabled = true;
+    timerPauseBtn.disabled = false;
+    timerStopBtn.disabled = false;
+  }
+}
+
+async function savePausedTimeToBlock(blockId) {
+  const pausedSeconds = getTotalPausedSeconds();
+  if (pausedSeconds > 0 && blockId) {
+    try {
+      await dbUpdateBlock(blockId, { paused_seconds: pausedSeconds });
+    } catch (err) {
+      console.error("Chyba při ukládání času pauzy:", err);
+    }
+  }
+}
+
+function handleTimerPlay() {
+  const state = getTimerState();
+  if (state.isPaused) {
+    setTimerPaused(false);
+    updateTimerButtons(true, false);
+  }
+}
+
+function handleTimerPause() {
+  const state = getTimerState();
+  if (!state.isPaused && state.currentBlockId) {
+    setTimerPaused(true);
+    updateTimerButtons(true, true);
+  }
+}
+
+async function handleTimerStop() {
+  const state = getTimerState();
+  if (state.currentBlockId) {
+    // Ukončíme pauzu pokud běží
+    if (state.isPaused) {
+      setTimerPaused(false);
+    }
+    // Uložíme čas pauzy do DB
+    await savePausedTimeToBlock(state.currentBlockId);
+    // Refresh UI
+    await refreshUI();
+  }
+}
+
 // --- Callbacks pro UI komponenty ---
 
 function getCallbacks() {
@@ -179,6 +257,16 @@ function getCallbacks() {
 function startCountdownLoop() {
   if (countdownInterval) clearInterval(countdownInterval);
 
+  const elements = {
+    focusTimeEl,
+    focusLabelEl,
+    focusRangeEl,
+    focusProjectEl,
+    focusCleanTimeEl,
+    focusPausedTimeEl,
+    ringFg
+  };
+
   countdownInterval = setInterval(async () => {
     const blocks = await loadBlocksForCurrentDay();
     const now = new Date();
@@ -186,35 +274,41 @@ function startCountdownLoop() {
     const nowSecs = now.getSeconds();
     const nowMs = (nowMins * 60 + nowSecs) * 1000;
 
-    if (focusTimeEl && ringFg) {
-      const currentBlock = getCurrentWorkBlock(blocks, nowMs);
-      if (currentBlock) {
-        const startMins = timeStringToMinutes(currentBlock.start);
-        const endMins = timeStringToMinutes(currentBlock.end);
-        const totalSecs = (endMins - startMins) * 60;
-        const elapsedSecs = (nowMins - startMins) * 60 + nowSecs;
-        const remainingSecs = totalSecs - elapsedSecs;
+    // Najdeme aktuální blok (work i break)
+    const currentBlock = getCurrentBlock(blocks, nowMs);
 
-        focusTimeEl.textContent = formatMMSS(remainingSecs);
-        focusLabelEl.textContent = "Zbývá";
-        focusRangeEl.textContent = `${currentBlock.start} — ${currentBlock.end}`;
+    // Aktualizujeme focus ring s podporou pauzy
+    const result = updateFocusRingWithPause(elements, currentBlock, nowMins, nowSecs);
 
-        const progress = elapsedSecs / totalSecs;
-        const offset = RING_CIRC * (1 - progress);
-        ringFg.style.strokeDashoffset = `${offset}`;
+    if (result) {
+      // Máme aktivní blok
+      const state = getTimerState();
+      updateTimerButtons(true, state.isPaused);
 
-        if (currentBlock.project_id) {
-          const proj = await getProjectById(currentBlock.project_id);
-          focusProjectEl.textContent = proj ? proj.name : "";
-        } else {
-          focusProjectEl.textContent = "";
+      // Aktualizujeme projekt
+      if (result.projectId && focusProjectEl) {
+        const proj = await getProjectById(result.projectId);
+        focusProjectEl.textContent = proj ? proj.name : "";
+      } else if (focusProjectEl) {
+        focusProjectEl.textContent = result.blockType === "break" ? "Pauza" : "";
+      }
+
+      // Ukládáme čas pauzy každých 10 sekund (pokud se změnil blok nebo je pauza)
+      if (currentActiveBlockId !== result.blockId) {
+        // Změnil se blok - uložíme předchozí
+        if (currentActiveBlockId) {
+          await savePausedTimeToBlock(currentActiveBlockId);
         }
-      } else {
-        focusTimeEl.textContent = "--:--";
-        focusLabelEl.textContent = "Žádný aktivní blok";
-        focusRangeEl.textContent = "";
-        focusProjectEl.textContent = "";
-        ringFg.style.strokeDashoffset = `${RING_CIRC}`;
+        currentActiveBlockId = result.blockId;
+      }
+    } else {
+      // Žádný aktivní blok
+      updateTimerButtons(false, false);
+
+      // Uložíme čas pauzy předchozího bloku
+      if (currentActiveBlockId) {
+        await savePausedTimeToBlock(currentActiveBlockId);
+        currentActiveBlockId = null;
       }
     }
   }, 1000);
@@ -276,6 +370,20 @@ async function init() {
       renderStatsRange(statsContent, currentRange);
     });
   });
+
+  // Timer control buttons
+  if (timerPlayBtn) {
+    timerPlayBtn.addEventListener("click", handleTimerPlay);
+  }
+  if (timerPauseBtn) {
+    timerPauseBtn.addEventListener("click", handleTimerPause);
+  }
+  if (timerStopBtn) {
+    timerStopBtn.addEventListener("click", handleTimerStop);
+  }
+
+  // Initial button state
+  updateTimerButtons(false, false);
 
   // Dialogy
   initProjectDialog(
