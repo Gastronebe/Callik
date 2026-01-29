@@ -232,7 +232,8 @@ function getCallbacks() {
     },
     onBlockProjectChange: async (blockId, projectId) => {
       await updateBlockProject(blockId, projectId);
-      await refreshUI();
+      // Nepřekreslujeme tabulku - select už je aktualizovaný v UI
+      await updateStatsAndProgress();
     },
     onBlockDelete: async (blockId) => {
       const blocks = await deleteBlockService(blockId);
@@ -240,7 +241,8 @@ function getCallbacks() {
     },
     onBlockTimeChange: async (blockId, updates) => {
       await updateBlockTimes(blockId, updates);
-      await refreshUI();
+      // Překreslíme jen pokud se změnilo pořadí, jinak jen statistiky
+      await updateStatsAndProgress();
     },
     openProjectDialog: (blockId) => {
       openProjectDialog(blockId, { projectDialog, dlgProjectName, dlgProjectTargetKpi });
