@@ -79,6 +79,30 @@ export async function renderBlocks(blocks, blocksTbody, callbacks) {
 
     tr.appendChild(tdName);
 
+    // 5. Délka - vytvoříme předem pro referenci v event handlerech
+    const tdLen = document.createElement("td");
+    const pausedSeconds = block.paused_seconds || 0;
+    const pausedMinutes = Math.floor(pausedSeconds / 60);
+
+    // Funkce pro aktualizaci délky v buňce
+    const updateDurationCell = (startTime, endTime) => {
+      const startMinsCalc = timeStringToMinutes(startTime);
+      const endMinsCalc = timeStringToMinutes(endTime);
+      const totalMins = Math.max(0, endMinsCalc - startMinsCalc);
+      const cleanMins = Math.max(0, totalMins - pausedMinutes);
+
+      if (pausedMinutes > 0) {
+        tdLen.innerHTML = `<span class="clean-time">${cleanMins} min</span> <span class="paused-indicator">(${pausedMinutes} min pauza)</span>`;
+        tdLen.title = `Celkem: ${totalMins} min, Pauza: ${pausedMinutes} min, Čistý čas: ${cleanMins} min`;
+      } else {
+        tdLen.textContent = totalMins + " min";
+      }
+    };
+
+    // Lokální kopie časů pro aktualizaci
+    let currentStart = block.start;
+    let currentEnd = block.end;
+
     // 3. Start
     const tdStart = document.createElement("td");
     const startInput = document.createElement("input");
@@ -89,9 +113,17 @@ export async function renderBlocks(blocks, blocksTbody, callbacks) {
       if (!e.target.value) return;
       const newStart = e.target.value;
       const updates = { start: newStart };
-      if (timeStringToMinutes(block.end) <= timeStringToMinutes(newStart)) {
-        updates.end = minutesToTimeString(timeStringToMinutes(newStart) + 30);
+
+      // Pokud konec je před začátkem, posuneme ho
+      if (timeStringToMinutes(currentEnd) <= timeStringToMinutes(newStart)) {
+        const newEnd = minutesToTimeString(timeStringToMinutes(newStart) + 30);
+        updates.end = newEnd;
+        endInput.value = newEnd;
+        currentEnd = newEnd;
       }
+
+      currentStart = newStart;
+      updateDurationCell(currentStart, currentEnd);
       await onBlockTimeChange(block.id, updates);
     });
     tdStart.appendChild(startInput);
@@ -106,22 +138,20 @@ export async function renderBlocks(blocks, blocksTbody, callbacks) {
     endInput.addEventListener("change", async (e) => {
       if (!e.target.value) return;
       let newEnd = e.target.value;
-      if (timeStringToMinutes(newEnd) <= timeStringToMinutes(block.start)) {
+      if (timeStringToMinutes(newEnd) <= timeStringToMinutes(currentStart)) {
         alert("Konec nemůže být dříve než začátek.");
-        e.target.value = block.end;
+        e.target.value = currentEnd;
         return;
       }
+      currentEnd = newEnd;
+      updateDurationCell(currentStart, currentEnd);
       await onBlockTimeChange(block.id, { end: newEnd });
     });
     tdEnd.appendChild(endInput);
     tr.appendChild(tdEnd);
 
-    // 5. Délka (zobrazuje čistý čas pokud je pauza)
-    const tdLen = document.createElement("td");
+    // Inicializace délky
     const totalMinutes = getDurationMinutes(block);
-    const pausedSeconds = block.paused_seconds || 0;
-    const pausedMinutes = Math.floor(pausedSeconds / 60);
-
     if (pausedMinutes > 0) {
       const cleanMinutes = getCleanDurationMinutes(block);
       tdLen.innerHTML = `<span class="clean-time">${cleanMinutes} min</span> <span class="paused-indicator">(${pausedMinutes} min pauza)</span>`;
